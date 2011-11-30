@@ -4,6 +4,9 @@ Encoding.default_internal = Encoding.find 'UTF-8'
 require 'bundler'
 Bundler.require
 
+puts __FILE__
+puts File.expand_path("../gentle_brute", __FILE__)
+$:.unshift File.expand_path("../gentle_brute", __FILE__)
 require 'gentle_brute/pattern_finder'
 require 'gentle_brute/word_analyzer'
 require 'gentle_brute/odometer'
