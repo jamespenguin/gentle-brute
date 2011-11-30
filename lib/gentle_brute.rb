@@ -1,6 +1,8 @@
 Encoding.default_external = Encoding.find 'UTF-8'
 Encoding.default_internal = Encoding.find 'UTF-8'
 
+require 'json'
+
 require 'bundler'
 Bundler.require
 
@@ -8,6 +10,7 @@ $:.unshift File.expand_path("..", __FILE__)
 require 'gentle_brute/pattern_finder'
 require 'gentle_brute/word_analyzer'
 require 'gentle_brute/odometer'
+require 'gentle_brute/cpa_analyzer'
 
 module GentleBrute
   class BruteForcer

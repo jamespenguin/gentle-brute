@@ -1,4 +1,4 @@
 source 'http://rubygems.org'
 
 gem 'slop'
-gem 'sqlite3'
+gem 'awesome_print'

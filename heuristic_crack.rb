@@ -15,6 +15,15 @@ Slop.parse :help => true do
         end
     end
 
+    on "rebuild-cpa-tables=", "Build the character position analysis tables file with a specific wordlist" do | arg |
+        c = GentleBrute::CPAAnalyzer.new
+        c.build_cpa_tables arg
+    end
+
+    on "test" do
+        c = GentleBrute::CPAAnalyzer.new
+    end
+
     on_empty do
       puts help
     end
