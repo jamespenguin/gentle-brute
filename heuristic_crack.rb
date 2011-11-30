@@ -7,6 +7,7 @@ Slop.parse :help => true do
 
     on "valid-words-for=", "Generate all valid English-like words and phraes of a given length" do | length |
         length = length.to_i
+        start_time = Time.now.to_f
 
         puts "[+] Generating valid words with a length #{length} characters."
         words = []
@@ -31,6 +32,8 @@ Slop.parse :help => true do
 
         puts "[+] Saved generated words to the file, words-#{length}.txt"
         File.open("words-#{length}.txt", "w") { |f| f.write words.join "\n" }
+
+        puts "[+] Total time: #{Time.now.to_f-start_time}"
     end
 
     on "rebuild-cpa-tables=", "Build the character position analysis tables file with a specific wordlist" do | arg |

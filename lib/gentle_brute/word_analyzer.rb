@@ -24,6 +24,9 @@ module GentleBrute
       # The word must contain at least one vowel
       return false if not has_vowel? word
 
+      # Validate Character Position Analysis Scores
+      return false if not passes_neighbor_tests? word
+
       # The word must conform to proper apostrophe usage rules
       return false if not uses_valid_apostrophes? word
 
@@ -32,9 +35,6 @@ module GentleBrute
 
       # Does the word contain triple char patterns?
       return false if word.length > 5 and not passes_direct_patterns_test? word
-
-      # Validate Character Position Analysis Scores
-      return false if not passes_neighbor_tests? word
 
       # The word is (probably) valid!
       true
