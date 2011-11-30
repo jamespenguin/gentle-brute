@@ -4,7 +4,7 @@ module GentleBrute
 
     def initialize
       build_cpa_tables if not File.exists? NEIGHBORS_PATH
-      lattices = JSON.parse File.open(NEIGHBORS_PATH).read
+      lattices = JSON.parse File.read(NEIGHBORS_PATH)
       @starters = lattices["starters"]
       @neighbors = lattices["neighbors"]
       @enders = lattices["enders"]
@@ -27,7 +27,7 @@ module GentleBrute
       end
 
       # Analyze each wrod in dictionary list
-      words = open(dictionary_path)
+      words = File.read(dictionary_path)
       words.each_line do | word |
         word.chomp!
         word.downcase!
