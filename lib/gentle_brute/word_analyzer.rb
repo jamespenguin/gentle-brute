@@ -1,11 +1,12 @@
 module GentleBrute
   class WordAnalyzer
-    def initialize(cpa_threshold=25)
-      @suffixes = open(File.expand_path('../resources/suffixes', __FILE__)).read.split "\n"
+    def initialize(cpa_threshold)
+      @suffixes = File.read(File.expand_path('../resources/suffixes', __FILE__)).split "\n"
       @vowels = ['a', 'e', 'i', 'o', 'u']
       @chars = ('a'..'z').to_a + ["'"]
       @punctuation = ["!", "?", ".", ","]
       @cpa_threshold = cpa_threshold
+      @cpa_analyzer = CPAAnalyzer.new
     end
 
     # Test whether or not a given word follows the rules of English-like words
@@ -52,9 +53,7 @@ module GentleBrute
     # @param [String] word the word to test
     # @return [Boolean] whether or not the word passed the test
     def has_vowel? word
-      @vowels.each do | vowel |
-        return true if word.include? vowel
-      end
+      @vowels.any? { |vowel| word.include? vowel }
       false
     end
 
@@ -98,6 +97,42 @@ module GentleBrute
     # @param [String] word the word to test
     # @return [Boolean] whether or not the word passed the test
     def passes_neighbor_tests? word
+      length = word.length
+      for i in 0...length
+        char = word[i]
+        char_r = word[i+1]
+        char_rr = word[i+2]
+        return false if char == char_r and char == char_rr
+        return false if char == char_r and length == 2
+        return false if not @chars.include? char
+  
+        if char_r
+          begin
+            if i == 0
+              return false if @cpa_analyzer.get_starter_neighbor_score(char, char_r)[0] == 0
+            elsif i == length-3
+              return false if @cpa_analyzer.get_ender_neighbor_score(char, char_r)[0] == 0
+            end
+            score = @cpa_analyzer.get_neighbor_score(char, char_r)
+            return false if score[0] < @cpa_threshold
+          rescue
+          end
+        end
+  
+        if char_rr
+          begin
+            if i == 0
+              return false if  @cpa_analyzer.get_starter_neighbor_score(char, char_rr)[1] == 0
+            elsif i == length-3
+              return false if @cpa_analyzer.get_ender_neighbor_score(char, char_rr)[1] == 0
+            end
+            score = @cpa_analyzer.get_neighbor_score(char, char_rr)
+            return false if score[1] < @cpa_threshold
+          rescue
+          end
+        end
+      end
+  
       true
     end
   end
