@@ -33,7 +33,7 @@ Slop.parse :help => true do
         puts "[+] Saved generated words to the file, words-#{length}.txt"
         File.open("words-#{length}.txt", "w") { |f| f.write words.join "\n" }
 
-        puts "[+] Total time: #{Time.now.to_f-start_time}"
+        puts "[+] Total time spent: #{Time.now.to_f-start_time}"
     end
 
     on "rebuild-cpa-tables=", "Build the character position analysis tables file with a specific wordlist" do | arg |
