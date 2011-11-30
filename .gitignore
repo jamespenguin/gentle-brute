@@ -3,3 +3,4 @@
 old/
 words-*.txt
 *.gem
+Gemfile.lock
