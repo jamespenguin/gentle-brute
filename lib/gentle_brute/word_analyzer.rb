@@ -53,9 +53,8 @@ module GentleBrute
       phrases = phrase.split "  "
       phrases.each do | phrase_ |
         return false if not passes_phrase_pattern_test? phrase_
-  
         phrase_.split(" ").each do | word |
-          return false if not is_valid_word?(word, threshold)
+          return false if not is_valid_word? word
         end
       end
   
