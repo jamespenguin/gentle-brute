@@ -52,6 +52,7 @@ module GentleBrute
   
       phrases = phrase.split "  "
       phrases.each do | phrase_ |
+        return false if phrase_.split(" ").length == 1 # phrases can't be just one word
         return false if not passes_phrase_pattern_test? phrase_
         phrase_.split(" ").each do | word |
           return false if not is_valid_word? word
