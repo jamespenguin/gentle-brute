@@ -62,7 +62,7 @@ Slop.parse :help => true do
         time_difference = Time.now.to_f - start_time
         puts
         puts
-        puts "[+] Crack Succeeded in #{time_difference} seconds"
+        puts "[+] Crack Succeeded in #{time_difference.round(8)} seconds"
         puts "-" * 75
 
         puts "[+] Attempting to crack hash using standard brute forcing"
@@ -85,9 +85,11 @@ Slop.parse :help => true do
         time_difference1 = Time.now.to_f - start_time
         puts
         puts
-        puts "[+] Crack Succeeded in #{time_difference1} seconds"
+        puts "[+] Crack Succeeded in #{time_difference1.round(8)} seconds"
         puts "-" * 75
-        puts "[+] GentleBrute was  #{time_difference1-time_difference} seconds faster"
+        puts "[+] GentleBrute was #{(time_difference1-time_difference).round(8)} seconds faster"
+        percent = 100 - ((time_difference*100)/time_difference1)
+        puts "[+] That's a speed improvement of %d%% compared to standard brute forcing!" % percent
     end
 
     on_empty do
