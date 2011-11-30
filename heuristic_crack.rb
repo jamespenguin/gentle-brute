@@ -43,11 +43,13 @@ Slop.parse :help => true do
     end
 
     on "cross-compare-crack=", "Cross compare brute force cracking times for a given md5 hash between GentleBrute, and regular brute forcing." do | target_hash |
+        start_length = 6
         puts "[+] Attempting to crack hash using Gentle-Brute"
         start_time = Time.now.to_f
-        b = GentleBrute::BruteForcer.new
+        b = GentleBrute::BruteForcer.new(start_length)
         puts
         puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+        puts "  " + ("-" * 75)
         while true
             phrase = b.next_valid_phrase
             attempt_hash = Digest::MD5.hexdigest(phrase)
@@ -67,9 +69,10 @@ Slop.parse :help => true do
 
         puts "[+] Attempting to crack hash using standard brute forcing"
         start_time = Time.now.to_f
-        odometer = GentleBrute::Odometer.new(1, heuristic=false)
+        odometer = GentleBrute::Odometer.new(start_length, heuristic=false)
         puts
         puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+        puts "  " + ("-" * 75)
         while true
             odometer.increment
             phrase = odometer.string_for_odometer
