@@ -44,6 +44,30 @@ module GentleBrute
     # @param [String] phrase the phrase to test for validity
     # @return [Boolean] whether or not the phrase passed all the validation tests
     def is_valid_phrase? phrase
+      # Does the phrase start or end with a space?
+      return false if phrase =~ /^ /
+      return false if phrase =~ / $/
+      return false if phrase.include? "-" and phrase.include? "_"
+      return false if phrase.include? "   "
+  
+      phrases = phrase.split "  "
+      phrases.each do | phrase_ |
+        return false if not passes_phrase_pattern_test? phrase_
+  
+        phrase_.split(" ").each do | word |
+          return false if not is_valid_word?(word, threshold)
+        end
+      end
+  
+      true
+    end
+
+    ### Begin Phrase Testing Functions ###
+    
+    def passes_phrase_pattern_test? phrase
+      pattern_data = PatternFinder.patterns_in_strintg phrase
+      return true if pattern_data == nil
+      return false if pattern_data[3] > 3
       true
     end
 
