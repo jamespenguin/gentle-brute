@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'digest/md5'
 require File.expand_path('../lib/gentle_brute', __FILE__)
 
 Slop.parse :help => true do
@@ -41,8 +42,52 @@ Slop.parse :help => true do
         c.build_cpa_tables arg
     end
 
-    on "test" do
-        c = GentleBrute::CPAAnalyzer.new
+    on "cross-compare-crack=", "Cross compare brute force cracking times for a given md5 hash between GentleBrute, and regular brute forcing." do | target_hash |
+        puts "[+] Attempting to crack hash using Gentle-Brute"
+        start_time = Time.now.to_f
+        b = GentleBrute::BruteForcer.new
+        puts
+        puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+        while true
+            phrase = b.next_valid_phrase
+            attempt_hash = Digest::MD5.hexdigest(phrase)
+            output_phrase = phrase
+            while output_phrase.length < 8
+                output_phrase = " " + output_phrase
+            end
+            line = "#{output_phrase} | #{attempt_hash} | #{target_hash}"
+            print "\r#{line}"
+            break if attempt_hash == target_hash
+        end
+        time_difference = Time.now.to_f - start_time
+        puts
+        puts
+        puts "[+] Crack Succeeded in #{time_difference} seconds"
+        puts "-" * 75
+
+        puts "[+] Attempting to crack hash using standard brute forcing"
+        start_time = Time.now.to_f
+        odometer = GentleBrute::Odometer.new(1, heuristic=false)
+        puts
+        puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+        while true
+            odometer.increment
+            phrase = odometer.string_for_odometer
+            attempt_hash = Digest::MD5.hexdigest(phrase)
+            output_phrase = phrase
+            while output_phrase.length < 8
+                output_phrase = " " + output_phrase
+            end
+            line = "#{output_phrase} | #{attempt_hash} | #{target_hash}"
+            print "\r#{line}"
+            break if attempt_hash == target_hash
+        end
+        time_difference1 = Time.now.to_f - start_time
+        puts
+        puts
+        puts "[+] Crack Succeeded in #{time_difference1} seconds"
+        puts "-" * 75
+        puts "[+] GentleBrute was  #{time_difference1-time_difference} seconds faster"
     end
 
     on_empty do

@@ -1,14 +1,15 @@
 module GentleBrute
   class Odometer
-    def initialize(start_length=1)
+    def initialize(start_length=1, heuristic=true)
       @letters = ('a'..'z').to_a
       @chars = @letters + [" "]
       @odometer = Array.new(start_length, 0)
-      @heuristic = true
+      @heuristic = heuristic
       @cpa_analyzer = CPAAnalyzer.new
     end
 
     def has_triple_char_pattern?
+      return false if not @heuristic
       indexes = []
       odometer_length = @odometer.length
       (odometer_length-1).downto 0 do | i |
