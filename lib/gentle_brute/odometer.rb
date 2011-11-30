@@ -8,21 +8,22 @@ module GentleBrute
       @cpa_analyzer = CPAAnalyzer.new
     end
 
-    def indexes_for_triplets
+    def has_triple_char_pattern?
       indexes = []
       odometer_length = @odometer.length
       (odometer_length-1).downto 0 do | i |
         index = @odometer[i]
         if indexes.length > 0
-          char1 = @chars[index]
-          char2 = @chars[@odometer[indexes[0]]]
+          char1 = @chars[index] # figure out what char the current index is
+          char2 = @chars[@odometer[indexes[0]]] # get the char of our first element in the indexes list
           indexes = [] if char1 != char2
         end
         indexes << i
         break if indexes.length == 3
       end
-      return [] if indexes.length < 3
-      return indexes
+      return false if indexes.length < 3
+      #puts "has triple char patterns!"
+      true
     end
 
     def break_up_triplets
@@ -48,29 +49,28 @@ module GentleBrute
       end
     end
 
-    def break_up_triplet_patterns
-      return if not @heuristic
-    
-      word = string_for_odometer
-      pattern_data = PatternFinder.patterns_in_strintg word
-      return if pattern_data == nil
-      return if pattern_data[3] < 3
-    
-      index = pattern_data[4][1]
-      index.downto 0 do | i |
-        element = @odometer[i]
-        element += 1
-        if element != @chars.length
-          @odometer[i] = element
-          break
-        end
-        @odometer[i] = 0
-        @odometer << 0 if i == 0
-      end
-    
-      break_up_triplet_patterns      
-    end
-
+    #def break_up_triplet_patterns
+    #  return if not @heuristic
+    #
+    #  word = string_for_odometer
+    #  pattern_data = PatternFinder.patterns_in_strintg word
+    #  return if pattern_data == nil
+    #  return if pattern_data[3] < 3
+    #
+    #  index = pattern_data[4][1]
+    #  index.downto 0 do | i |
+    #    element = @odometer[i]
+    #    element += 1
+    #    if element != @chars.length
+    #      @odometer[i] = element
+    #      break
+    #    end
+    #    @odometer[i] = 0
+    #    @odometer << 0 if i == 0
+    #  end
+    #
+    #  break_up_triplet_patterns      
+    #end
 
     def rotate_out_bad_start_pairs
       return if not @heuristic
@@ -155,7 +155,6 @@ module GentleBrute
       end
     end
 
-
     # Increment the odometer
     # @param [Number] total_steps the number of steps to increment the odometer by (default is 1)
     def increment(total_steps=1)
@@ -167,17 +166,18 @@ module GentleBrute
           element += 1
           if element != @chars.length
             @odometer[i] = element
-            rotate_out_bad_end_pairs
-            rotate_out_bad_start_pairs if [0, 1, 2].include? i
+            #rotate_out_bad_end_pairs
+            #rotate_out_bad_start_pairs if [0, 1, 2].include? i
             break
           end
           @odometer[i] = 0
           @odometer << 0 if i == 0
-          rotate_out_bad_end_pairs
-          rotate_out_bad_start_pairs if [0, 1, 2].include? i
         end
         #break_up_triplets
         #break_up_triplet_patterns if @odometer.length > 5
+        rotate_out_bad_end_pairs
+        rotate_out_bad_start_pairs
+        next if has_triple_char_pattern?
         steps_taken += 1
       end
     end
