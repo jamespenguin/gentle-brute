@@ -2,3 +2,4 @@
 *.komodoproject
 old/
 words-*.txt
+*.gem

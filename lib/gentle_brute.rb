@@ -3,9 +3,6 @@ Encoding.default_internal = Encoding.find 'UTF-8'
 
 require 'json'
 
-require 'bundler'
-Bundler.require
-
 $:.unshift File.expand_path("..", __FILE__)
 require 'gentle_brute/pattern_finder'
 require 'gentle_brute/word_analyzer'
