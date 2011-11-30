@@ -5,7 +5,7 @@ require File.expand_path('../lib/gentle_brute', __FILE__)
 Slop.parse :help => true do
     banner "heuristic_crack [options]"
 
-    on "generate-valid-words-for-length=", "Generate all valid English-like words and phraes of a given length" do | length |
+    on "valid-words-for=", "Generate all valid English-like words and phraes of a given length" do | length |
         length = length.to_i
 
         puts "[+] Generating valid words with a length #{length} characters."

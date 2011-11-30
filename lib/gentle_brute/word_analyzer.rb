@@ -54,7 +54,6 @@ module GentleBrute
     # @return [Boolean] whether or not the word passed the test
     def has_vowel? word
       @vowels.any? { |vowel| word.include? vowel }
-      false
     end
 
     # Test whether or not a given word follows proper apostrophe usage rules
