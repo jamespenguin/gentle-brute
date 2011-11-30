@@ -22,31 +22,7 @@ module GentleBrute
         break if indexes.length == 3
       end
       return false if indexes.length < 3
-      #puts "has triple char patterns!"
       true
-    end
-
-    def break_up_triplets
-      return if not @heuristic
-    
-      indexes = indexes_for_triplets
-      while indexes.length > 0
-        @odometer[indexes[1]] += 1
-        if @odometer[indexes[1]] == @chars.length
-          @odometer[indexes[1]] = 0
-          (indexes[1]-1).downto 0 do | i |
-            element = @odometer[i]
-            element += 1
-            if element != @chars.length
-              @odometer[i] = element
-              break
-            end
-            @odometer[i] = 0
-            @odometer << 0 if i == 0
-          end
-        end
-        indexes = indexes_for_triplets
-      end
     end
 
     #def break_up_triplet_patterns
@@ -166,15 +142,11 @@ module GentleBrute
           element += 1
           if element != @chars.length
             @odometer[i] = element
-            #rotate_out_bad_end_pairs
-            #rotate_out_bad_start_pairs if [0, 1, 2].include? i
             break
           end
           @odometer[i] = 0
           @odometer << 0 if i == 0
         end
-        #break_up_triplets
-        #break_up_triplet_patterns if @odometer.length > 5
         rotate_out_bad_end_pairs
         rotate_out_bad_start_pairs
         next if has_triple_char_pattern?
