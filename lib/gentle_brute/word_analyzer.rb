@@ -88,6 +88,9 @@ module GentleBrute
     # @param [String] word the word to test
     # @return [Boolean] whether or not the word passed the test
     def passes_direct_patterns_test? word
+      pattern_data = PatternFinder.patterns_in_strintg word
+      return true if not pattern_data
+      return false if pattern_data[3] > 2
       true
     end
 
