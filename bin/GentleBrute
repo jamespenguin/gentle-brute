@@ -109,6 +109,16 @@ Slop.parse :help => true do
         puts "-" * 75
     end
 
+    on "validate=", "Test whether a given word or phrase is considered valid" do | word |
+        cpa_threshold = 24
+        word_analyzer = GentleBrute::WordAnalyzer.new cpa_threshold
+        if word_analyzer.is_valid_word? word.dup
+            puts "[+] \"#{word}\" is a valid English-like word or phrase."
+        else
+            puts "[+] \"#{word}\" is NOT a valid English-like word or phrase."
+        end
+    end
+
     on_empty do
       puts help
     end

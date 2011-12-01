@@ -13,7 +13,7 @@ module GentleBrute
   class BruteForcer
     # @param [Number] start_length the starthing length of the string to start generating potential words
     # @param [Number] cpa_threshold the minimum character position analysis score neighboring characters must have
-    def initialize(start_length=1, cpa_threshold=25)
+    def initialize(start_length=1, cpa_threshold=24)
       @odometer = Odometer.new start_length
       @word_analyzer = WordAnalyzer.new cpa_threshold
     end
