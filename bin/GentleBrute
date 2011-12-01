@@ -16,7 +16,7 @@ end
 Slop.parse :help => true do
     banner "GentleBrute [options]"
 
-    on "valid-words-for=", "Generate all valid English-like words and phraes of a given length" do | length |
+    on "word-list=", "Generate a word list of valid English-like words and phrases for a given length" do | length |
         length = length.to_i
         start_time = Time.now.to_f
 
@@ -45,11 +45,6 @@ Slop.parse :help => true do
         File.open("words-#{length}.txt", "w") { |f| f.write words.join "\n" }
 
         puts "[+] Total time spent: #{Time.now.to_f-start_time}"
-    end
-
-    on "rebuild-cpa-tables=", "Build the character position analysis tables file with a specific wordlist" do | arg |
-        c = GentleBrute::CPAAnalyzer.new
-        c.build_cpa_tables arg
     end
 
     on "cross-compare-crack=", "Cross compare brute force cracking times for a given md5 hash between GentleBrute, and regular brute forcing." do | target_hash |
