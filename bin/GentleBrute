@@ -4,7 +4,10 @@ require 'digest/md5'
 require 'slop'
 require 'gentle_brute'
 
+require 'curses'
 require 'ap'
+
+@get_input = false
 
 def pretty_time_string time
     hours = (time/3600).to_i
@@ -21,8 +24,78 @@ def crack_md5_list file_path
         return
     end
 
-    hashes = File.read(file_path).split("\n")
-    ap hashes
+    target_hashes = File.read(file_path).split("\n")
+    unbroken_hashes = target_hashes.dup
+    cracked_hashes = {}
+    b = GentleBrute::BruteForcer.new
+
+    Curses.init_screen()
+    Curses.noecho()
+    Curses.stdscr.nodelay = 1
+    win = Curses::Window.new(0, 0, 0, 0)
+
+    win.setpos(1, 0)
+    win.addstr("== Attempting to crack target hashes using heuristic brute forcing ==".center(Curses.cols))
+    win.setpos(2, 0)
+    win.addstr("(Press 'q' to quit at any time)".center(Curses.cols))
+    win.setpos(4, 0)
+    header = "Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+    divider = ("-" * 77) + "  "
+    while header.length < divider.length
+        header += " "
+    end
+    win.addstr(header.rjust(Curses.cols))
+    win.setpos(5, 0)
+    win.addstr(divider.rjust(Curses.cols))
+
+    while unbroken_hashes.length > 0
+        break if Curses.getch == ?q
+        phrase = b.next_valid_phrase
+        attempt_hash = Digest::MD5.hexdigest(phrase)
+        output_phrase = phrase
+
+        row = 6
+        target_hashes.each do | target_hash |
+            if cracked_hashes.key? target_hash
+                new_phrase = cracked_hashes[target_hash]
+                new_hash = target_hash
+                line = "#{new_phrase} | #{new_hash} | #{target_hash}"
+            else
+                line = "#{output_phrase} | #{attempt_hash} | #{target_hash}"
+            end
+            line += "   "
+            
+            if attempt_hash == target_hash
+                unbroken_hashes.delete target_hash
+                cracked_hashes[target_hash] = output_phrase
+            end
+
+            win.setpos(row, 0)
+            win.addstr(line.rjust(Curses.cols))
+            row += 1
+            win.refresh
+        end
+    end
+    win.refresh
+    win.close
+
+    puts
+    puts divider.rjust(Curses.cols)
+    puts "[+] Password cracking finished"
+
+    if cracked_hashes.keys.length > 0
+        formatted_date = Time.now.strftime("%m_%d_%Y_%H_%M")
+        file_name = "passwords-#{formatted_date}.txt"
+        results = []
+        cracked_hashes.keys.each do | cracked_hash |
+            result = "#{cracked_hashes[cracked_hash]}\t#{cracked_hash}"
+            results << result
+        end
+        File.open(file_name, "w") { |f| f.write results.join "\n" }
+        puts "[+] Saved results to #{file_name}"
+    end
+
+
 
 end
 

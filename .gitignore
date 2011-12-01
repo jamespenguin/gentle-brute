@@ -1,6 +1,6 @@
 .komodotools
 *.komodoproject
 old/
-words-*.txt
+*.txt
 *.gem
 Gemfile.lock
