@@ -85,10 +85,11 @@ module GentleBrute
     # @return [Boolean] whether or not the word passed the test
     def uses_valid_apostrophes? word
       if word.include? "'"
+        length = word.length
         index = word.index "'"
         return false if length-1 != word.tr("'", "").length
         return false if index != length-1 and index != length-2
-        return false if word[-1] != 's' and word[-2] != 's'
+        return false if word[-1] != 's' and word[-2] != 's' and word[-1] != 't' and word[-1] != 'm' and word[-1] != 'd'
       end
       true
     end
