@@ -4,6 +4,8 @@ require 'digest/md5'
 require 'slop'
 require 'gentle_brute'
 
+require 'ap'
+
 def pretty_time_string time
     hours = (time/3600).to_i
     minutes = (time/60 - hours * 60).to_i
@@ -13,8 +15,18 @@ def pretty_time_string time
     pretty_time
 end
 
+def crack_md5_list file_path
+    if not File.exists? file_path
+        puts "[!] ERROR: '#{file_path}' does not exist."
+        return
+    end
+end
+
 opts = Slop.parse :help => true do
     banner "GentleBrute [options]"
+
+    on :quiet, "Be quiet and just crack passwords."
+    ap opts.quiet?
 
     on "word-list=", "Generate a word list of valid English-like words and phrases for a given length" do | length |
         length = length.to_i
@@ -118,7 +130,7 @@ opts = Slop.parse :help => true do
         end
     end
 
-    on "crack-md5=", "Crack MD5 password hash" do | target_hash |
+    on "crack-md5=", "Crack a single MD5 password hash" do | target_hash |
         start_length = 1
         puts "-" * 75
         puts "[+] Attempting to crack target hash using heuristic brute forcing."
@@ -146,7 +158,11 @@ opts = Slop.parse :help => true do
         puts "-" * 75
         puts
     end
-    
+
+    on "crack-md5-list=", "Crack a series of MD5 password hashes in a given file." do | file_path |
+        crack_md5_list file_path
+    end
+
     on_empty do
       puts help
     end
