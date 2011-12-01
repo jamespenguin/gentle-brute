@@ -20,15 +20,16 @@ def crack_md5_list file_path
         puts "[!] ERROR: '#{file_path}' does not exist."
         return
     end
+
+    hashes = File.read(file_path).split("\n")
+    ap hashes
+
 end
 
-opts = Slop.parse :help => true do
-    banner "GentleBrute [options]"
+Slop.parse :help => true do | opts |
+    opts.banner "GentleBrute [options]"
 
-    on :quiet, "Be quiet and just crack passwords."
-    ap opts.quiet?
-
-    on "word-list=", "Generate a word list of valid English-like words and phrases for a given length" do | length |
+    opts.on "word-list=", "Generate a word list of valid English-like words and phrases for a given length" do | length |
         length = length.to_i
         start_time = Time.now.to_f
 
@@ -59,14 +60,14 @@ opts = Slop.parse :help => true do
         puts "[+] Total time spent: #{Time.now.to_f-start_time}"
     end
 
-    on "cross-compare-crack=", "Cross compare brute force cracking times for a given md5 hash between GentleBrute, and regular brute forcing." do | target_hash |
+    opts.on "cross-compare-crack=", "Cross compare brute force cracking times for a given md5 hash between GentleBrute, and regular brute forcing." do | target_hash |
         start_length = 1
         puts "-" * 75
         puts "[+] Attempting to crack target hash using heuristic brute forcing."
         start_time = Time.now.to_f
         b = GentleBrute::BruteForcer.new(start_length)
-        puts
 
+        puts
         puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
         puts "  " + ("-" * 75)
         while true
@@ -76,8 +77,7 @@ opts = Slop.parse :help => true do
             while output_phrase.length < 8
                 output_phrase = " " + output_phrase
             end
-            line = "#{output_phrase} | #{attempt_hash} | #{target_hash}"
-            print "\r#{line}"
+            print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
             break if attempt_hash == target_hash
         end
         time_difference = Time.now.to_f - start_time
@@ -102,8 +102,7 @@ opts = Slop.parse :help => true do
             while output_phrase.length < 8
                 output_phrase = " " + output_phrase
             end
-            line = "#{output_phrase} | #{attempt_hash} | #{target_hash}"
-            print "\r#{line}"
+            print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
             break if attempt_hash == target_hash
         end
         time_difference1 = Time.now.to_f - start_time
@@ -120,7 +119,7 @@ opts = Slop.parse :help => true do
         puts "-" * 75
     end
 
-    on "validate=", "Test whether a given word or phrase is considered valid" do | word |
+    opts.on "validate=", "Test whether a given word or phrase is considered valid" do | word |
         cpa_threshold = 24
         word_analyzer = GentleBrute::WordAnalyzer.new cpa_threshold
         if word_analyzer.is_valid_word? word.dup
@@ -130,14 +129,14 @@ opts = Slop.parse :help => true do
         end
     end
 
-    on "crack-md5=", "Crack a single MD5 password hash" do | target_hash |
+    opts.on "crack-md5=", "Crack a single MD5 password hash" do | target_hash |
         start_length = 1
         puts "-" * 75
         puts "[+] Attempting to crack target hash using heuristic brute forcing."
         start_time = Time.now.to_f
         b = GentleBrute::BruteForcer.new(start_length)
-        puts
 
+        puts
         puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
         puts "  " + ("-" * 75)
         while true
@@ -147,8 +146,7 @@ opts = Slop.parse :help => true do
             while output_phrase.length < 8
                 output_phrase = " " + output_phrase
             end
-            line = "#{output_phrase} | #{attempt_hash} | #{target_hash}"
-            print "\r#{line}"
+            print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
             break if attempt_hash == target_hash
         end
         time_difference = Time.now.to_f - start_time
@@ -159,11 +157,12 @@ opts = Slop.parse :help => true do
         puts
     end
 
-    on "crack-md5-list=", "Crack a series of MD5 password hashes in a given file." do | file_path |
+    opts.on "crack-md5-list=", "Crack a series of MD5 password hashes in a given file." do | file_path |
+        ap opts.quiet?
         crack_md5_list file_path
     end
 
-    on_empty do
-      puts help
+    opts.on_empty do
+      puts opts.help
     end
 end
