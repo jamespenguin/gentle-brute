@@ -2,7 +2,7 @@ module GentleBrute
   class Odometer
     def initialize(start_length=1, heuristic=true)
       @letters = ('a'..'z').to_a
-      @chars = @letters + [" "]
+      @chars = @letters + [" ", "'"]
       @odometer = Array.new(start_length, 0)
       @heuristic = heuristic
       @cpa_analyzer = CPAAnalyzer.new

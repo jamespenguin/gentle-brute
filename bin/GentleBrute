@@ -28,6 +28,7 @@ def crack_md5_list file_path
     unbroken_hashes = target_hashes.dup
     cracked_hashes = {}
     b = GentleBrute::BruteForcer.new
+    start_time = Time.now.to_f
 
     Curses.init_screen()
     Curses.noecho()
@@ -73,14 +74,26 @@ def crack_md5_list file_path
             win.setpos(row, 0)
             win.addstr(line.rjust(Curses.cols))
             row += 1
-            win.refresh
         end
+
+        # Add time elapsed information
+        win.setpos(row, 0)
+        win.addstr(divider.rjust(Curses.cols))
+        row += 1
+        time_elapsed = Time.now.to_f - start_time
+        time_elapsed_string = "Time Elapsed: #{pretty_time_string time_elapsed}   "
+        win.setpos(row, 0)
+        win.addstr(time_elapsed_string.rjust(Curses.cols))
+        row += 1
+        win.setpos(row, 0)
+        win.addstr(divider.rjust(Curses.cols))
+
+        win.refresh
     end
     win.refresh
     win.close
 
     puts
-    puts divider.rjust(Curses.cols)
     puts "[+] Password cracking finished"
 
     if cracked_hashes.keys.length > 0
