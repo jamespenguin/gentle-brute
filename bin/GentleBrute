@@ -13,7 +13,7 @@ def pretty_time_string time
     pretty_time
 end
 
-Slop.parse :help => true do
+opts = Slop.parse :help => true do
     banner "GentleBrute [options]"
 
     on "word-list=", "Generate a word list of valid English-like words and phrases for a given length" do | length |
@@ -110,6 +110,8 @@ Slop.parse :help => true do
     end
 
     on "validate=", "Test whether a given word or phrase is considered valid" do | word |
+        require 'ap'
+        ap opts
         cpa_threshold = 24
         word_analyzer = GentleBrute::WordAnalyzer.new cpa_threshold
         if word_analyzer.is_valid_word? word.dup
