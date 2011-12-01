@@ -7,8 +7,6 @@ require 'gentle_brute'
 require 'curses'
 require 'ap'
 
-@get_input = false
-
 def pretty_time_string time
     hours = (time/3600).to_i
     minutes = (time/60 - hours * 60).to_i
@@ -31,12 +29,22 @@ def crack_md5_list file_path
     start_time = Time.now.to_f
 
     Curses.init_screen()
+    Curses.start_color()
     Curses.noecho()
     Curses.stdscr.nodelay = 1
+
+    # Determines the colors in the 'attron' below
+    Curses.init_pair(1, Curses::COLOR_WHITE, Curses::COLOR_BLACK)
+    #Curses.init_pair(COLOR_BLACK, COLOR_BLACK, COLOR_BLACK);
+    #Curses.init_pair("red",Curses.COLOR_RED,Curses.COLOR_BLACK)
+
     win = Curses::Window.new(0, 0, 0, 0)
 
+    
     win.setpos(1, 0)
+    Curses.attron(Curses.color_pair(1)|Curses::A_NORMAL) {
     win.addstr("== Attempting to crack target hashes using heuristic brute forcing ==".center(Curses.cols))
+    }
     win.setpos(2, 0)
     win.addstr("(Press 'q' to quit at any time)".center(Curses.cols))
     win.setpos(4, 0)
@@ -95,7 +103,6 @@ def crack_md5_list file_path
 
     puts
     puts "[+] Password cracking finished"
-
     if cracked_hashes.keys.length > 0
         formatted_date = Time.now.strftime("%m_%d_%Y_%H_%M")
         file_name = "passwords-#{formatted_date}.txt"
@@ -107,9 +114,6 @@ def crack_md5_list file_path
         File.open(file_name, "w") { |f| f.write results.join "\n" }
         puts "[+] Saved results to #{file_name}"
     end
-
-
-
 end
 
 Slop.parse :help => true do | opts |
