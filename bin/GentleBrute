@@ -10,15 +10,13 @@ def pretty_time_string time
     hours = (time/3600).to_i
     minutes = (time/60 - hours * 60).to_i
     seconds = (time - (minutes * 60 + hours * 3600))
-    pretty_time = "%02d:%02d:%02d" % [hours, minutes, seconds]
-    return "#{time.round(8)} seconds" if pretty_time == "00:00:00"
-    pretty_time
+    "%02d:%02d:%02d" % [hours, minutes, seconds]
 end
 
 def crack_md5_list file_path
     if not File.exists? file_path
-        puts "[!] ERROR: '#{file_path}' does not exist."
-        return
+	puts "[!] ERROR: '#{file_path}' does not exist."
+	return
     end
 
     target_hashes = File.read(file_path).split("\n")
@@ -46,66 +44,64 @@ def crack_md5_list file_path
     header = "Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
     divider = ("-" * 77) + "  "
     while header.length < divider.length
-        header += " "
+	header += " "
     end
     win.addstr(header.rjust(Curses.cols))
     win.setpos(5, 0)
     win.addstr(divider.rjust(Curses.cols))
 
     while unbroken_hashes.length > 0
-        break if Curses.getch == ?q
-        phrase = b.next_valid_phrase
-        attempt_hash = Digest::MD5.hexdigest(phrase)
-        output_phrase = phrase
+	break if Curses.getch == ?q
+	phrase = b.next_valid_phrase
+	attempt_hash = Digest::MD5.hexdigest(phrase)
+	output_phrase = phrase
 
-        row = 6
-        target_hashes.each do | target_hash |
-            if cracked_hashes.key? target_hash
-                new_phrase = cracked_hashes[target_hash]
-                new_hash = target_hash
-                line = "#{new_phrase} | #{new_hash} | #{target_hash}   "
-                offset = (line.rjust(Curses.cols).length) - line.length
-                win.setpos(row, offset)
-                win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
-                    win.addstr(new_phrase)
-                }
-                win.addstr(" | ")
-                win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
-                    win.addstr(new_hash)
-                }
-                win.addstr(" | ")
-                win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
-                    win.addstr(target_hash)
-                }
-            else
-                line = "#{output_phrase} | #{attempt_hash} | #{target_hash}   "
-                win.setpos(row, 0)
-                win.addstr(line.rjust(Curses.cols))
-            end
-            
-            if attempt_hash == target_hash
-                unbroken_hashes.delete target_hash
-                cracked_hashes[target_hash] = output_phrase
-            end
+	row = 6
+	target_hashes.each do | target_hash |
+	    if cracked_hashes.key? target_hash
+		new_phrase = cracked_hashes[target_hash]
+		new_hash = target_hash
+		line = "#{new_phrase} | #{new_hash} | #{target_hash}   "
+		offset = (line.rjust(Curses.cols).length) - line.length
+		win.setpos(row, offset)
+		win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
+		    win.addstr(new_phrase)
+		}
+		win.addstr(" | ")
+		win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
+		    win.addstr(new_hash)
+		}
+		win.addstr(" | ")
+		win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
+		    win.addstr(target_hash)
+		}
+	    else
+		line = "#{output_phrase} | #{attempt_hash} | #{target_hash}   "
+		win.setpos(row, 0)
+		win.addstr(line.rjust(Curses.cols))
+	    end
+	    
+	    if attempt_hash == target_hash
+		unbroken_hashes.delete target_hash
+		cracked_hashes[target_hash] = output_phrase
+	    end
 
+	    row += 1
+	end
 
+	# Add time elapsed information
+	win.setpos(row, 0)
+	win.addstr(divider.rjust(Curses.cols))
+	row += 1
+	time_elapsed = Time.now.to_f - start_time
+	time_elapsed_string = "Time Elapsed: #{pretty_time_string time_elapsed}   "
+	win.setpos(row, 0)
+	win.addstr(time_elapsed_string.rjust(Curses.cols))
+	row += 1
+	win.setpos(row, 0)
+	win.addstr(divider.rjust(Curses.cols))
 
-            row += 1
-        end
-
-        # Add time elapsed information
-        win.setpos(row, 0)
-        win.addstr(divider.rjust(Curses.cols))
-        row += 1
-        time_elapsed = Time.now.to_f - start_time
-        time_elapsed_string = "Time Elapsed: #{pretty_time_string time_elapsed}   "
-        win.setpos(row, 0)
-        win.addstr(time_elapsed_string.rjust(Curses.cols))
-        row += 1
-        win.setpos(row, 0)
-        win.addstr(divider.rjust(Curses.cols))
-
-        win.refresh
+	win.refresh
     end
     win.refresh
     win.close
@@ -113,15 +109,15 @@ def crack_md5_list file_path
     puts
     puts "[+] Password cracking finished"
     if cracked_hashes.keys.length > 0
-        formatted_date = Time.now.strftime("%m_%d_%Y_%H_%M")
-        file_name = "passwords-#{formatted_date}.txt"
-        results = []
-        cracked_hashes.keys.each do | cracked_hash |
-            result = "#{cracked_hashes[cracked_hash]}\t#{cracked_hash}"
-            results << result
-        end
-        File.open(file_name, "w") { |f| f.write results.join "\n" }
-        puts "[+] Saved results to #{file_name}"
+	formatted_date = Time.now.strftime("%m_%d_%Y_%H_%M")
+	file_name = "passwords-#{formatted_date}.txt"
+	results = []
+	cracked_hashes.keys.each do | cracked_hash |
+	    result = "#{cracked_hashes[cracked_hash]}\t#{cracked_hash}"
+	    results << result
+	end
+	File.open(file_name, "w") { |f| f.write results.join "\n" }
+	puts "[+] Saved results to #{file_name}"
     end
 end
 
@@ -129,135 +125,170 @@ Slop.parse :help => true do | opts |
     opts.banner "GentleBrute [options]"
 
     opts.on "word-list=", "Generate a word list of valid English-like words and phrases for a given length" do | length |
-        length = length.to_i
-        start_time = Time.now.to_f
+	length = length.to_i
+	start_time = Time.now.to_f
 
-        puts "[+] Generating valid words with a length #{length} characters."
-        words = []
-        b = GentleBrute::BruteForcer.new(start_length=length)
-        print "\r[+] Words generated: #{words.length}"
-        while true
-            phrase = b.next_valid_phrase
-            break if phrase.length > length
-            words << phrase
-            print "\r[+] Words generated: #{words.length}"
-        end
-        puts ", Finished!"
-        puts "-" * 60
+	puts "[+] Generating valid words with a length #{length} characters."
+	words = []
+	b = GentleBrute::BruteForcer.new(start_length=length)
+	print "\r[+] Words generated: #{words.length}"
+	while true
+	    phrase = b.next_valid_phrase
+	    break if phrase.length > length
+	    words << phrase
+	    print "\r[+] Words generated: #{words.length}"
+	end
+	puts ", Finished!"
+	puts "-" * 60
 
-        puts "[+] Generated #{words.length} potential passphrases"
-        chars = ('a'..'z').to_a + ["'"]
-        potential_combinations = chars.length ** length
-        puts "[+] There are #{potential_combinations} total potential combinations for the length you provided"
-        percent = 100 - ((words.length * 100)/potential_combinations)
-        puts "[+] Gentle-Brute reduced the number of hashes you would need to try by #{percent}%"
-        puts "-" * 50
+	puts "[+] Generated #{words.length} potential passphrases"
+	chars = ('a'..'z').to_a + ["'"]
+	potential_combinations = chars.length ** length
+	puts "[+] There are #{potential_combinations} total potential combinations for the length you provided"
+	percent = 100 - ((words.length * 100)/potential_combinations)
+	puts "[+] Gentle-Brute reduced the number of hashes you would need to try by #{percent}%"
+	puts "-" * 50
 
-        puts "[+] Saved generated words to the file, words-#{length}.txt"
-        File.open("words-#{length}.txt", "w") { |f| f.write words.join "\n" }
+	puts "[+] Saved generated words to the file, words-#{length}.txt"
+	File.open("words-#{length}.txt", "w") { |f| f.write words.join "\n" }
 
-        puts "[+] Total time spent: #{Time.now.to_f-start_time}"
+	puts "[+] Total time spent: #{Time.now.to_f-start_time}"
     end
 
     opts.on "cross-compare-crack=", "Cross compare brute force cracking times for a given md5 hash between GentleBrute, and regular brute forcing." do | target_hash |
-        start_length = 1
-        puts "-" * 75
-        puts "[+] Attempting to crack target hash using heuristic brute forcing."
-        start_time = Time.now.to_f
-        b = GentleBrute::BruteForcer.new(start_length)
+	start_length = 1
+	puts "-" * 75
+	puts "[+] Attempting to crack target hash using heuristic brute forcing."
+	start_time = Time.now.to_f
+	b = GentleBrute::BruteForcer.new(start_length)
 
-        puts
-        puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
-        puts "  " + ("-" * 75)
-        while true
-            phrase = b.next_valid_phrase
-            attempt_hash = Digest::MD5.hexdigest(phrase)
-            output_phrase = phrase
-            while output_phrase.length < 8
-                output_phrase = " " + output_phrase
-            end
-            print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
-            break if attempt_hash == target_hash
-        end
-        time_difference = Time.now.to_f - start_time
-        puts
-        puts
-        puts "[+] Crack Succeeded in #{pretty_time_string time_difference}"
-        puts "-" * 75
-        puts
+	puts
+	puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+	puts "  " + ("-" * 75)
+	while true
+	    phrase = b.next_valid_phrase
+	    attempt_hash = Digest::MD5.hexdigest(phrase)
+	    output_phrase = phrase
+	    while output_phrase.length < 8
+		output_phrase = " " + output_phrase
+	    end
+	    print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
+	    break if attempt_hash == target_hash
+	end
+	time_difference = Time.now.to_f - start_time
+	puts
+	puts
+	puts "[+] Crack Succeeded in #{pretty_time_string time_difference}"
+	puts "-" * 75
+	puts
 
-        puts "-" * 75
-        puts "[+] Attempting to crack target hash using standard brute forcing"
-        start_time = Time.now.to_f
-        odometer = GentleBrute::Odometer.new(start_length, heuristic=false)
-        puts
-        puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
-        puts "  " + ("-" * 75)
-        while true
-            odometer.increment
-            phrase = odometer.string_for_odometer
-            attempt_hash = Digest::MD5.hexdigest(phrase)
-            output_phrase = phrase
-            while output_phrase.length < 8
-                output_phrase = " " + output_phrase
-            end
-            print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
-            break if attempt_hash == target_hash
-        end
-        time_difference1 = Time.now.to_f - start_time
-        puts
-        puts
-        puts "[+] Crack Succeeded in #{pretty_time_string time_difference1}"
-        puts "-" * 75
-        puts
+	puts "-" * 75
+	puts "[+] Attempting to crack target hash using standard brute forcing"
+	start_time = Time.now.to_f
+	odometer = GentleBrute::Odometer.new(start_length, heuristic=false)
+	puts
+	puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+	puts "  " + ("-" * 75)
+	while true
+	    odometer.increment
+	    phrase = odometer.string_for_odometer
+	    attempt_hash = Digest::MD5.hexdigest(phrase)
+	    output_phrase = phrase
+	    while output_phrase.length < 8
+		output_phrase = " " + output_phrase
+	    end
+	    print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
+	    break if attempt_hash == target_hash
+	end
+	time_difference1 = Time.now.to_f - start_time
+	puts
+	puts
+	puts "[+] Crack Succeeded in #{pretty_time_string time_difference1}"
+	puts "-" * 75
+	puts
 
-        puts "-" * 75
-        puts "[+] GentleBrute was #{pretty_time_string(time_difference1-time_difference)} faster"
-        percent = 100 - ((time_difference*100)/time_difference1)
-        puts "[+] That's a speed improvement of %d%% compared to standard brute forcing!" % percent
-        puts "-" * 75
+	puts "-" * 75
+	puts "[+] GentleBrute was #{pretty_time_string(time_difference1-time_difference)} faster"
+	percent = 100 - ((time_difference*100)/time_difference1)
+	puts "[+] That's a speed improvement of %d%% compared to standard brute forcing!" % percent
+	puts "-" * 75
     end
 
     opts.on "validate=", "Test whether a given word or phrase is considered valid" do | word |
-        cpa_threshold = 24
-        word_analyzer = GentleBrute::WordAnalyzer.new cpa_threshold
-        if word_analyzer.is_valid_word? word.dup
-            puts "[+] \"#{word}\" is a valid English-like word or phrase."
-        else
-            puts "[+] \"#{word}\" is NOT a valid English-like word or phrase."
-        end
+	cpa_threshold = 24
+	word_analyzer = GentleBrute::WordAnalyzer.new cpa_threshold
+	if word_analyzer.is_valid_word? word.dup
+	    puts "[+] \"#{word}\" is a valid English-like word or phrase."
+	else
+	    puts "[+] \"#{word}\" is NOT a valid English-like word or phrase."
+	end
     end
 
     opts.on "crack-md5=", "Crack a single MD5 password hash" do | target_hash |
-        start_length = 1
-        puts "-" * 75
-        puts "[+] Attempting to crack target hash using heuristic brute forcing."
-        start_time = Time.now.to_f
-        b = GentleBrute::BruteForcer.new(start_length)
+	start_length = 1
+	puts "-" * 75
+	puts "[+] Attempting to crack target hash using heuristic brute forcing."
+	start_time = Time.now.to_f
+	b = GentleBrute::BruteForcer.new(start_length)
 
-        puts
-        puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
-        puts "  " + ("-" * 75)
-        while true
-            phrase = b.next_valid_phrase
-            attempt_hash = Digest::MD5.hexdigest(phrase)
-            output_phrase = phrase
-            while output_phrase.length < 8
-                output_phrase = " " + output_phrase
-            end
-            print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
-            break if attempt_hash == target_hash
-        end
-        time_difference = Time.now.to_f - start_time
-        puts
-        puts
-        puts "[+] Crack Succeeded in #{pretty_time_string time_difference}"
-        puts "-" * 75
-        puts
+	puts
+	puts "  Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
+	puts "  " + ("-" * 75)
+	while true
+	    phrase = b.next_valid_phrase
+	    attempt_hash = Digest::MD5.hexdigest(phrase)
+	    output_phrase = phrase
+	    while output_phrase.length < 8
+		output_phrase = " " + output_phrase
+	    end
+	    print "\r#{output_phrase} | #{attempt_hash} | #{target_hash}"
+	    break if attempt_hash == target_hash
+	end
+	time_difference = Time.now.to_f - start_time
+	puts
+	puts
+	puts "[+] Crack Succeeded in #{pretty_time_string time_difference}"
+	puts "-" * 75
+	puts
     end
 
     opts.on "crack-md5-list=", "Crack a series of MD5 password hashes in a given file." do | file_path |
-        crack_md5_list file_path
+	crack_md5_list file_path
+    end
+
+    opts.on "rainbow-table", "Build MD5 hash rainbow table." do
+        start_length = 1
+	puts "-" * 75
+	puts "[+] Creating rainbow table using heuristic brute force phrase creation."
+	puts "[+] Saving results to 'rainbow_table.txt'"
+	puts "[+] Press Ctrl-C to stop at any time."
+	start_time = Time.now.to_f
+	b = GentleBrute::BruteForcer.new(start_length)
+
+        table_file = File.open("rainbow_table.txt", "w")
+
+	puts
+	puts "  Phrase | MD5 Hash (Phrase)                | Time Elapsed"
+	puts "  " + ("-" * 75)
+	begin
+            while true
+                phrase = b.next_valid_phrase
+                attempt_hash = Digest::MD5.hexdigest(phrase)
+                output_phrase = phrase
+                while output_phrase.length < 8
+                    output_phrase = " " + output_phrase
+                end
+                time_elapsed = Time.now.to_f - start_time
+                print "\r#{output_phrase} | #{attempt_hash} | #{pretty_time_string time_elapsed}"
+                table_file.write("#{phrase}\t#{attempt_hash}\n")
+            end
+	rescue Interrupt
+            puts
+            puts
+            puts "[+] Table generating stopped."
+        end
+
+	table_file.close()
     end
 
     opts.on_empty do
