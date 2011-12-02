@@ -1,6 +1,6 @@
 Gentle-Brute
 ============
-One of the major drawbacks to using a brute force attack to crack a password, is that it can literally take billions of years (if not more) to try all of the possible permuations of a user's password.  One way to cut down on this, is to skip trying passwords that would be unlikely for a target user to have.  (Things like 'aaaaaa', 'asdf7777772dn', etc)  Gentle-brute is a Ruby gem designed to generate only "English-like" words and phrases for more heuristic brute force password cracking attacks.  An English-like word is a sequence of characters that may not necessarilly be an _actual_ English word, but still adheres to the "rules" of English words.  By only using these kinds of words and phrases when attempting to crack a password with brute force, it's possible to greatly reduce amount of time it takes to find a matching hash.
+One of the major drawbacks to using a brute force attack to crack a password, is that it can literally take billions of years (if not more) to try all of the possible permuations of a user's password.  One way to cut down on this, is to skip trying passwords that would be unlikely for a target user to have.  (Things like 'aaaaaa', 'asdf7777772dn', etc)  Gentle-Brute is a Ruby gem designed to generate only "English-like" words and phrases for more heuristic brute force password cracking attacks.  An English-like word is a sequence of characters that may not necessarilly be an _actual_ English word, but still adheres to the "rules" of English words.  By only using these kinds of words and phrases when attempting to crack a password with brute force, it's possible to greatly reduce amount of time it takes to find a matching hash.
 
 What are the "Rules" of English-like words and phrases?
 -------------------------------------------------------
@@ -56,6 +56,18 @@ end
 
 Is there really a big difference in speed?
 ------------------------------------------
-Yes.
 
-![comparison image](http://i694.photobucket.com/albums/vv305/jamespenguin1/science3.png)
+You bet there is!
+
+![comparison image](http://i694.photobucket.com/albums/vv305/jamespenguin1/science3-1.png)
+
+But does it really work?
+------------------------
+
+See for yourself!
+
+    gem install gentle_brute
+    wget https://raw.github.com/jamespenguin/gentle-brute/master/passwords.txt
+    GentleBrute --crack-md5-list passwords.txt
+
+![super hax](http://i694.photobucket.com/albums/vv305/jamespenguin1/color.png)
