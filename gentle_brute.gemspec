@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'gentle_brute'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.summary = 'The better brute force algorithm'
   s.description = 'A heuristic brute forcing algorithm for Ruby that generates brute force passphrases that adhere to the rules of English-like words and phrases.'
   s.authors = ["Brandon Smith"]
