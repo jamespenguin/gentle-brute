@@ -35,34 +35,43 @@ def crack_md5_list file_path
     Curses.init_pair(COLOR_GREEN,COLOR_GREEN,COLOR_BLACK) 
     Curses.init_pair(COLOR_RED,COLOR_RED,COLOR_BLACK)
 
+    divider = "-" * 77
+
     win = Curses::Window.new(0, 0, 0, 0)  
     win.setpos(1, 0)
     win.addstr("== Attempting to crack target hashes using heuristic brute forcing ==".center(Curses.cols))
     win.setpos(2, 0)
     win.addstr("(Press 'q' to quit at any time)".center(Curses.cols))
     win.setpos(4, 0)
-    header = "Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)"
-    divider = ("-" * 77) + "  "
-    while header.length < divider.length
-	header += " "
-    end
-    win.addstr(header.rjust(Curses.cols))
+    header = "Phrase | MD5 Hash (Phrase)                | MD5 Hash (Target)".ljust(divider.length)
+    win.addstr(header.center(Curses.cols))
     win.setpos(5, 0)
-    win.addstr(divider.rjust(Curses.cols))
+    win.addstr(divider.center(Curses.cols))
 
     while unbroken_hashes.length > 0
 	break if Curses.getch == ?q
 	phrase = b.next_valid_phrase
 	attempt_hash = Digest::MD5.hexdigest(phrase)
 	output_phrase = phrase
+	#output_phrase = "a" * 10
 
 	row = 6
 	target_hashes.each do | target_hash |
+	    if attempt_hash == target_hash
+		unbroken_hashes.delete target_hash
+		cracked_hashes[target_hash] = output_phrase
+	    end
+
 	    if cracked_hashes.key? target_hash
 		new_phrase = cracked_hashes[target_hash]
 		new_hash = target_hash
-		line = "#{new_phrase} | #{new_hash} | #{target_hash}   "
-		offset = (line.rjust(Curses.cols).length) - line.length
+		line = "#{new_phrase} | #{new_hash} | #{target_hash} ".rjust(divider.length)
+		offset = ((line.center(Curses.cols).length) - line.length)/2
+		index = header.center(Curses.cols).index("|")
+		while ((" " * offset) + "#{new_phrase} |").index("|") < index
+                    offset += 1
+		end
+
 		win.setpos(row, offset)
 		win.attron(color_pair(COLOR_GREEN)|A_NORMAL){
 		    win.addstr(new_phrase)
@@ -76,30 +85,24 @@ def crack_md5_list file_path
 		    win.addstr(target_hash)
 		}
 	    else
-		line = "#{output_phrase} | #{attempt_hash} | #{target_hash}   "
+		line = "#{output_phrase} | #{attempt_hash} | #{target_hash} ".rjust(divider.length)
 		win.setpos(row, 0)
-		win.addstr(line.rjust(Curses.cols))
+		win.addstr(line.center(Curses.cols))
 	    end
-	    
-	    if attempt_hash == target_hash
-		unbroken_hashes.delete target_hash
-		cracked_hashes[target_hash] = output_phrase
-	    end
-
 	    row += 1
 	end
 
 	# Add time elapsed information
 	win.setpos(row, 0)
-	win.addstr(divider.rjust(Curses.cols))
+	win.addstr(divider.center(Curses.cols))
 	row += 1
 	time_elapsed = Time.now.to_f - start_time
-	time_elapsed_string = "Time Elapsed: #{pretty_time_string time_elapsed}   "
+	time_elapsed_string = "Time Elapsed: #{pretty_time_string time_elapsed} ".rjust(divider.length)
 	win.setpos(row, 0)
-	win.addstr(time_elapsed_string.rjust(Curses.cols))
+	win.addstr(time_elapsed_string.center(Curses.cols))
 	row += 1
 	win.setpos(row, 0)
-	win.addstr(divider.rjust(Curses.cols))
+	win.addstr(divider.center(Curses.cols))
 
 	win.refresh
     end
